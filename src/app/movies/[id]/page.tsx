@@ -12,14 +12,25 @@ import {
 } from '@/components/ui/card';
 import {ArrowLeft, Edit} from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {formatDate} from '@/lib/utils';
 import {Separator} from '@/components/ui/separator';
 import {useParams} from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useMoviePoster} from '@/hooks/use-images';
 
 export default function MovieDetailsPage() {
   const params = useParams();
   const id = params.id as string;
   const { data: movie, isLoading, error } = useMovie(id);
+  const [posterImage, setPosterImage] = useState<string | undefined>(movie?.posterImage);
+  const { data: fetchedPoster, isLoading: isPosterLoading } = useMoviePoster(movie?.title || '', movie?.releasedYear);
+
+  useEffect(() => {
+    if (!movie?.posterImage && fetchedPoster) {
+      setPosterImage(fetchedPoster);
+    }
+  }, [movie?.posterImage, fetchedPoster]);
 
   if (isLoading) {
     return (
@@ -60,9 +71,22 @@ export default function MovieDetailsPage() {
           <Card>
             <CardContent className="p-0">
               <div className="relative aspect-[2/3] w-full overflow-hidden rounded-t-lg">
-                <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                  <span className="text-muted-foreground">No poster image</span>
-                </div>
+                {posterImage ? (
+                  <Image
+                    src={posterImage}
+                    alt={movie.title}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                    {isPosterLoading ? (
+                      <span className="text-muted-foreground">Loading poster...</span>
+                    ) : (
+                      <span className="text-muted-foreground">No poster image</span>
+                    )}
+                  </div>
+                )}
               </div>
             </CardContent>
             <CardFooter className="flex justify-between p-4">

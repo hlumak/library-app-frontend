@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {Book} from '@/types/books';
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Edit, Trash2} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {useBookCover} from '@/hooks/use-images';
 
 interface BookCardProps {
   book: Book;
@@ -12,12 +15,34 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, onDeleteAction }: BookCardProps) {
+  const [coverImage, setCoverImage] = useState<string | undefined>(book.coverImage);
+  const { data: fetchedCover, isLoading } = useBookCover(book.title, book.authorName);
+
+  useEffect(() => {
+    if (!book.coverImage && fetchedCover) {
+      setCoverImage(fetchedCover);
+    }
+  }, [book.coverImage, fetchedCover]);
+
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48 w-full">
-        <div className="absolute inset-0 flex items-center justify-center bg-muted">
-          <span className="text-muted-foreground">No cover image</span>
-        </div>
+        {coverImage ? (
+          <Image
+            src={coverImage}
+            alt={book.title}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted">
+            {isLoading ? (
+              <span className="text-muted-foreground">Loading cover...</span>
+            ) : (
+              <span className="text-muted-foreground">No cover image</span>
+            )}
+          </div>
+        )}
       </div>
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">

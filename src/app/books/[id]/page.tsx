@@ -16,11 +16,21 @@ import Link from 'next/link';
 import {formatDate} from '@/lib/utils';
 import {Separator} from '@/components/ui/separator';
 import {useParams} from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useBookCover} from '@/hooks/use-images';
 
 export default function BookDetailsPage() {
   const params = useParams();
   const id = params.id as string;
   const { data: book, isLoading, error } = useBook(id);
+  const [coverImage, setCoverImage] = useState<string | undefined>(book?.coverImage);
+  const { data: fetchedCover, isLoading: isCoverLoading } = useBookCover(book?.title || '', book?.authorName);
+
+  useEffect(() => {
+    if (!book?.coverImage && fetchedCover) {
+      setCoverImage(fetchedCover);
+    }
+  }, [book?.coverImage, fetchedCover]);
 
   if (isLoading) {
     return (
@@ -61,16 +71,20 @@ export default function BookDetailsPage() {
           <Card>
             <CardContent className="p-0">
               <div className="relative aspect-[2/3] w-full overflow-hidden rounded-t-lg">
-                {book.coverImage ? (
+                {coverImage ? (
                   <Image
-                    src={book.coverImage}
+                    src={coverImage}
                     alt={book.title}
                     fill
                     className="object-cover"
                   />
                 ) : (
                   <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                    <span className="text-muted-foreground">No cover image</span>
+                    {isCoverLoading ? (
+                      <span className="text-muted-foreground">Loading cover...</span>
+                    ) : (
+                      <span className="text-muted-foreground">No cover image</span>
+                    )}
                   </div>
                 )}
               </div>
@@ -98,17 +112,6 @@ export default function BookDetailsPage() {
                   <h3 className="text-sm font-medium text-muted-foreground">Publication Year</h3>
                   <p>{book.publishedYear}</p>
                 </div>
-                <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Genre</h3>
-                  <p>{book.genre}</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div>
-                <h3 className="mb-2 text-sm font-medium text-muted-foreground">Description</h3>
-                <p className="text-sm">{book.description}</p>
               </div>
 
               <Separator />

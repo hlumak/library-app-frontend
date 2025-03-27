@@ -4,6 +4,7 @@ export interface Movie {
   directorName: string;
   producerName: string;
   releasedYear: number;
+  posterImage?: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import {Movie} from '@/types/movies';
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from '@/components/ui/card';
 import {Button} from '@/components/ui/button';
 import {Edit, Trash2} from 'lucide-react';
+import {useEffect, useState} from 'react';
+import {useMoviePoster} from '@/hooks/use-images';
 
 interface MovieCardProps {
   movie: Movie;
@@ -12,12 +15,34 @@ interface MovieCardProps {
 }
 
 export function MovieCard({ movie, onDeleteAction }: MovieCardProps) {
+  const [posterImage, setPosterImage] = useState<string | undefined>(movie?.posterImage);
+  const { data: fetchedPoster, isLoading } = useMoviePoster(movie.title, movie?.releasedYear);
+
+  useEffect(() => {
+    if (!movie?.posterImage && fetchedPoster) {
+      setPosterImage(fetchedPoster);
+    }
+  }, [movie?.posterImage, fetchedPoster]);
+
   return (
     <Card className="overflow-hidden">
       <div className="relative h-48 w-full">
-        <div className="absolute inset-0 flex items-center justify-center bg-muted">
-          <span className="text-muted-foreground">No poster image</span>
-        </div>
+        {posterImage ? (
+          <Image
+            src={posterImage}
+            alt={movie.title}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-muted">
+            {isLoading ? (
+              <span className="text-muted-foreground">Loading cover...</span>
+            ) : (
+              <span className="text-muted-foreground">No cover image</span>
+            )}
+          </div>
+        )}
       </div>
       <CardHeader className="p-4">
         <div className="flex justify-between items-start">
