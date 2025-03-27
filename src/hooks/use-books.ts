@@ -6,22 +6,22 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 
 export function useBooks() {
   return useQuery({
-    queryKey: ["books"],
+    queryKey: ['books'],
     queryFn: async () => {
-      const { data } = await api.get<Book[]>("/books/?totalCount=false");
+      const {data} = await api.get<Book[]>('/books/');
       return data;
-    },
+    }
   });
 }
 
 export function useBook(id: string) {
   return useQuery({
-    queryKey: ["books", id],
+    queryKey: ['books', id],
     queryFn: async () => {
-      const { data } = await api.get<Book>(`/books/${id}`);
+      const {data} = await api.get<Book>(`/books/${id}`);
       return data;
     },
-    enabled: !!id,
+    enabled: !!id
   });
 }
 
@@ -30,12 +30,12 @@ export function useCreateBook() {
 
   return useMutation({
     mutationFn: async (bookData: BookFormValues) => {
-      const { data } = await api.post<Book>("/books", bookData);
+      const {data} = await api.post<Book>('/books/', {...bookData, authorId: 0});
       return data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["books"] });
-    },
+      await queryClient.invalidateQueries({queryKey: ['books']});
+    }
   });
 }
 
@@ -43,14 +43,14 @@ export function useUpdateBook() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, bookData }: { id: string; bookData: Partial<BookFormValues> }) => {
-      const { data } = await api.patch<Book>(`/books/${id}`, bookData);
+    mutationFn: async ({id, bookData}: { id: string; bookData: Partial<BookFormValues> }) => {
+      const {data} = await api.put<Book>(`/books/${id}`, {...bookData, authorId: 0});
       return data;
     },
     onSuccess: async (data) => {
-      await queryClient.invalidateQueries({ queryKey: ["books"] });
-      await queryClient.invalidateQueries({ queryKey: ["books", data.id] });
-    },
+      await queryClient.invalidateQueries({queryKey: ['books']});
+      await queryClient.invalidateQueries({queryKey: ['books', data.id]});
+    }
   });
 }
 
@@ -63,7 +63,7 @@ export function useDeleteBook() {
       return id;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["books"] });
-    },
+      await queryClient.invalidateQueries({queryKey: ['books']});
+    }
   });
 }

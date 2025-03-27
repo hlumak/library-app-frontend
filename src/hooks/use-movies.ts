@@ -6,22 +6,22 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query';
 
 export function useMovies() {
   return useQuery({
-    queryKey: ["movies"],
+    queryKey: ['movies'],
     queryFn: async () => {
-      const { data } = await api.get<Movie[]>("/movies/?totalCount=false");
+      const {data} = await api.get<Movie[]>('/movies/');
       return data;
-    },
+    }
   });
 }
 
 export function useMovie(id: string) {
   return useQuery({
-    queryKey: ["movies", id],
+    queryKey: ['movies', id],
     queryFn: async () => {
-      const { data } = await api.get<Movie>(`/movies/${id}`);
+      const {data} = await api.get<Movie>(`/movies/${id}`);
       return data;
     },
-    enabled: !!id,
+    enabled: !!id
   });
 }
 
@@ -30,12 +30,16 @@ export function useCreateMovie() {
 
   return useMutation({
     mutationFn: async (movieData: MovieFormValues) => {
-      const { data } = await api.post<Movie>("/movies", movieData);
+      const {data} = await api.post<Movie>('/movies/', {
+        ...movieData,
+        directorId: 0,
+        producerId: 0
+      });
       return data;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["movies"] });
-    },
+      await queryClient.invalidateQueries({queryKey: ['movies']});
+    }
   });
 }
 
@@ -43,14 +47,18 @@ export function useUpdateMovie() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, movieData }: { id: string; movieData: Partial<MovieFormValues> }) => {
-      const { data } = await api.patch<Movie>(`/movies/${id}`, movieData);
+    mutationFn: async ({id, movieData}: { id: string; movieData: Partial<MovieFormValues> }) => {
+      const {data} = await api.put<Movie>(`/movies/${id}`, {
+        ...movieData,
+        directorId: 0,
+        producerId: 0
+      });
       return data;
     },
     onSuccess: async (data) => {
-      await queryClient.invalidateQueries({ queryKey: ["movies"] });
-      await queryClient.invalidateQueries({ queryKey: ["movies", data.id] });
-    },
+      await queryClient.invalidateQueries({queryKey: ['movies']});
+      await queryClient.invalidateQueries({queryKey: ['movies', data.id]});
+    }
   });
 }
 
@@ -63,7 +71,7 @@ export function useDeleteMovie() {
       return id;
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["movies"] });
-    },
+      await queryClient.invalidateQueries({queryKey: ['movies']});
+    }
   });
 }
