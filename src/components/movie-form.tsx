@@ -6,33 +6,37 @@ import {z} from 'zod';
 import {Button} from '@/components/ui/button';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
-import {BookFormValues} from '@/types/books';
+import {MovieFormValues} from '@/types/movies';
 
-const bookFormSchema = z.object({
+const movieFormSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
   }),
-  authorName: z.string().min(2, {
+  releasedYear: z.coerce.number().int().min(1880).max(new Date().getFullYear(), {
+    message: `Year must be between 1880 and ${new Date().getFullYear()}.`,
+  }),
+  producerName: z.string().min(2, {
     message: "Author name must be at least 2 characters.",
   }),
-  publishedYear: z.coerce.number().int().min(1000).max(new Date().getFullYear(), {
-    message: `Year must be between 1000 and ${new Date().getFullYear()}.`,
+  directorName: z.string().min(2, {
+    message: "Author name must be at least 2 characters.",
   }),
 });
 
-interface BookFormProps {
-  defaultValues?: Partial<BookFormValues>;
-  onSubmitAction: (data: BookFormValues) => void;
+interface MovieFormProps {
+  defaultValues?: Partial<MovieFormValues>;
+  onSubmitAction: (data: MovieFormValues) => void;
   isSubmitting: boolean;
 }
 
-export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFormProps) {
-  const form = useForm<BookFormValues>({
-    resolver: zodResolver(bookFormSchema),
+export function MovieForm({ defaultValues, onSubmitAction, isSubmitting }: MovieFormProps) {
+  const form = useForm<MovieFormValues>({
+    resolver: zodResolver(movieFormSchema),
     defaultValues: defaultValues || {
       title: "",
-      authorName: "",
-      publishedYear: new Date().getFullYear()
+      releasedYear: new Date().getFullYear(),
+      producerName: "",
+      directorName: ""
     },
   });
 
@@ -47,7 +51,7 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
-                  <Input placeholder="Book title" {...field} />
+                  <Input placeholder="Movie title" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -56,7 +60,7 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
 
           <FormField
             control={form.control}
-            name="authorName"
+            name="directorName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Author</FormLabel>
@@ -70,10 +74,24 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
 
           <FormField
             control={form.control}
-            name="publishedYear"
+            name="producerName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Publication Year</FormLabel>
+                <FormLabel>Author</FormLabel>
+                <FormControl>
+                  <Input placeholder="Author name" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="releasedYear"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Release Year</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
@@ -85,7 +103,7 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
 
         <div className="flex justify-end">
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save Book"}
+            {isSubmitting ? "Saving..." : "Save Movie"}
           </Button>
         </div>
       </form>

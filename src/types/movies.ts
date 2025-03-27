@@ -1,26 +1,16 @@
 export interface Movie {
   id: string;
   title: string;
-  director: string;
-  releaseYear: number;
-  genre: string;
-  runtime: number;
-  posterImage?: string;
-  description: string;
-  available: boolean;
-  totalCopies: number;
-  availableCopies: number;
+  directorName: string;
+  producerName: string;
+  releasedYear: number;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface MovieFormValues {
   title: string;
-  director: string;
-  releaseYear: number;
-  genre: string;
-  runtime: number;
-  posterImage?: string;
-  description: string;
-  totalCopies: number;
+  directorName: string;
+  producerName: string;
+  releasedYear: number;
 }

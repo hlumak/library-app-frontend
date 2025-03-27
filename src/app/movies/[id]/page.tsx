@@ -1,6 +1,6 @@
 "use client";
 
-import {useBook} from '@/hooks/use-books';
+import {useMovie} from '@/hooks/use-movies';
 import {Button} from '@/components/ui/button';
 import {
   Card,
@@ -11,16 +11,15 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import {ArrowLeft, Edit} from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import {formatDate} from '@/lib/utils';
 import {Separator} from '@/components/ui/separator';
 import {useParams} from 'next/navigation';
 
-export default function BookDetailsPage() {
+export default function MovieDetailsPage() {
   const params = useParams();
   const id = params.id as string;
-  const { data: book, isLoading, error } = useBook(id);
+  const { data: movie, isLoading, error } = useMovie(id);
 
   if (isLoading) {
     return (
@@ -32,14 +31,14 @@ export default function BookDetailsPage() {
     );
   }
 
-  if (error || !book) {
+  if (error || !movie) {
     return (
       <div className="container py-10">
         <div className="rounded-lg border border-destructive bg-destructive/10 p-4 text-destructive">
-          Failed to load book details. The book may not exist or there was an error.
+          Failed to load movie details. The movie may not exist or there was an error.
         </div>
         <Button asChild className="mt-4">
-          <Link href="/books">Back to Books</Link>
+          <Link href="/movies">Back to Movies</Link>
         </Button>
       </div>
     );
@@ -49,9 +48,9 @@ export default function BookDetailsPage() {
     <div className="container py-10">
       <div className="mb-6">
         <Button asChild variant="outline" size="sm">
-          <Link href="/books">
+          <Link href="/movies">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Books
+            Back to Movies
           </Link>
         </Button>
       </div>
@@ -61,23 +60,14 @@ export default function BookDetailsPage() {
           <Card>
             <CardContent className="p-0">
               <div className="relative aspect-[2/3] w-full overflow-hidden rounded-t-lg">
-                {book.coverImage ? (
-                  <Image
-                    src={book.coverImage}
-                    alt={book.title}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center bg-muted">
-                    <span className="text-muted-foreground">No cover image</span>
-                  </div>
-                )}
+                <div className="absolute inset-0 flex items-center justify-center bg-muted">
+                  <span className="text-muted-foreground">No poster image</span>
+                </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between p-4">
               <Button asChild variant="outline" size="sm">
-                <Link href={`/books/${book.id}/edit`}>
+                <Link href={`/movies/${movie.id}/edit`}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Link>
@@ -89,33 +79,27 @@ export default function BookDetailsPage() {
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">{book.title}</CardTitle>
-              <CardDescription>By {book.authorName}</CardDescription>
+              <CardTitle className="text-2xl">{movie.title}</CardTitle>
+              <CardDescription>
+                {`Directed by ${movie.directorName}`}
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Publication Year</h3>
-                  <p>{book.publishedYear}</p>
+                  <h3 className="text-sm font-medium text-muted-foreground">Release Year</h3>
+                  <p>{movie.releasedYear}</p>
                 </div>
                 <div>
-                  <h3 className="text-sm font-medium text-muted-foreground">Genre</h3>
-                  <p>{book.genre}</p>
+                  <h3 className="text-sm font-medium text-muted-foreground">Producer</h3>
+                  <p>{movie.producerName}</p>
                 </div>
               </div>
-
-              <Separator />
-
-              <div>
-                <h3 className="mb-2 text-sm font-medium text-muted-foreground">Description</h3>
-                <p className="text-sm">{book.description}</p>
-              </div>
-
               <Separator />
 
               <div className="text-xs text-muted-foreground">
-                <p>Added on: {formatDate(new Date(book.createdAt))}</p>
-                <p>Last updated: {formatDate(new Date(book.updatedAt))}</p>
+                <p>Added on: {formatDate(new Date(movie.createdAt))}</p>
+                {movie.updatedAt && <p>Last updated: {formatDate(new Date(movie.updatedAt))}</p>}
               </div>
             </CardContent>
           </Card>

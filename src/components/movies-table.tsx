@@ -16,37 +16,40 @@ import {
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from '@/components/ui/table';
-import {Book} from '@/types/books';
+import {Movie} from '@/types/movies';
 import Link from 'next/link';
 import {Edit, Trash2} from 'lucide-react';
 
-interface BooksTableProps {
-  data: Book[];
+interface MoviesTableProps {
+  data: Movie[];
   onDeleteAction: (id: string) => void;
 }
 
-export function BooksTable({ data, onDeleteAction }: BooksTableProps) {
+export function MoviesTable({ data, onDeleteAction }: MoviesTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-  const columns: ColumnDef<Book>[] = [
+  const columns: ColumnDef<Movie>[] = [
     {
       accessorKey: "title",
       header: "Title",
       cell: ({ row }) => (
         <div className="font-medium">
-          <Link href={`/books/${row.original.id}`} className="hover:underline">
+          <Link href={`/movies/${row.original.id}`} className="hover:underline">
             {row.getValue("title")}
           </Link>
         </div>
       ),
     },
     {
-      accessorKey: "authorName",
-      header: "Author",
+      accessorKey: "directorName",
+      header: "Director",
+      cell: ({ row }) => {
+        return row.original.directorName;
+      },
     },
     {
-      accessorKey: "publishedYear",
+      accessorKey: "releasedYear",
       header: "Year",
     },
     {
@@ -55,7 +58,7 @@ export function BooksTable({ data, onDeleteAction }: BooksTableProps) {
         return (
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="icon">
-              <Link href={`/books/${row.original.id}/edit`}>
+              <Link href={`/movies/${row.original.id}/edit`}>
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Edit</span>
               </Link>
@@ -93,7 +96,7 @@ export function BooksTable({ data, onDeleteAction }: BooksTableProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <Input
-          placeholder="Filter books..."
+          placeholder="Filter movies..."
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
@@ -101,7 +104,7 @@ export function BooksTable({ data, onDeleteAction }: BooksTableProps) {
           className="max-w-sm"
         />
         <Button asChild>
-          <Link href="/books/add">Add Book</Link>
+          <Link href="/movies/add">Add Movie</Link>
         </Button>
       </div>
 
@@ -148,7 +151,7 @@ export function BooksTable({ data, onDeleteAction }: BooksTableProps) {
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No books found.
+                  No movies found.
                 </TableCell>
               </TableRow>
             )}
