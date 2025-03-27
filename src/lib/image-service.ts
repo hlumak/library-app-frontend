@@ -20,13 +20,11 @@ interface TMDBSearchResponse {
 export const getBookCoverImage = async (title: string, author?: string): Promise<string | null> => {
   const cacheKey = `${title}-${author || ''}`;
 
-  // Check cache first
   if (bookImageCache.has(cacheKey)) {
     return bookImageCache.get(cacheKey) || null;
   }
 
   try {
-    // Use Open Library API to search for the book
     const query = `${title} ${author || ''}`.trim();
     const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=1`);
     const data = await response.json() as OpenLibraryResponse;
@@ -45,12 +43,11 @@ export const getBookCoverImage = async (title: string, author?: string): Promise
 };
 
 // You'll need to get a free TMDB API key from https://www.themoviedb.org/settings/api
-const TMDB_API_KEY = "4089e3a6e524ef63794d9677ff7ef837";
+const TMDB_API_KEY = process.env.NEXT_PUBLIC_TMDB_API_KEY || "";
 
 export const getMoviePosterImage = async (title: string, year?: number): Promise<string | null> => {
   const cacheKey = `${title}-${year || ''}`;
 
-  // Check cache first
   if (movieImageCache.has(cacheKey)) {
     return movieImageCache.get(cacheKey) || null;
   }
