@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useForm} from 'react-hook-form';
@@ -7,17 +7,25 @@ import {Button} from '@/components/ui/button';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
 import {BookFormValues} from '@/types/books';
+import {usePeople} from '@/hooks/use-people';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 const bookFormSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
+    message: 'Title must be at least 2 characters.'
   }),
   authorName: z.string().min(2, {
-    message: "Author name must be at least 2 characters.",
+    message: 'Author name must be at least 2 characters.'
   }),
   publishedYear: z.coerce.number().int().min(1000).max(new Date().getFullYear(), {
-    message: `Year must be between 1000 and ${new Date().getFullYear()}.`,
-  }),
+    message: `Year must be between 1000 and ${new Date().getFullYear()}.`
+  })
 });
 
 interface BookFormProps {
@@ -26,14 +34,16 @@ interface BookFormProps {
   isSubmitting: boolean;
 }
 
-export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFormProps) {
+export function BookForm({defaultValues, onSubmitAction, isSubmitting}: BookFormProps) {
+  const {data: people, isLoading: isPeopleLoading} = usePeople();
+
   const form = useForm<BookFormValues>({
     resolver: zodResolver(bookFormSchema),
     defaultValues: defaultValues || {
-      title: "",
-      authorName: "",
+      title: '',
+      authorName: '',
       publishedYear: new Date().getFullYear()
-    },
+    }
   });
 
   return (
@@ -43,13 +53,13 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
           <FormField
             control={form.control}
             name="title"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
                   <Input placeholder="Book title" {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
@@ -57,13 +67,34 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
           <FormField
             control={form.control}
             name="authorName"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
                 <FormLabel>Author</FormLabel>
                 <FormControl>
-                  <Input placeholder="Author name" {...field} />
+                  {isPeopleLoading ? (
+                    <div className="h-9 flex items-center px-3 border rounded-md border-input">
+                      <span className="text-muted-foreground">Loading authors...</span>
+                    </div>
+                  ) : (
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an author"/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {people?.map((person) => (
+                          <SelectItem key={person.id} value={person.name}>
+                            {person.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
@@ -71,21 +102,21 @@ export function BookForm({ defaultValues, onSubmitAction, isSubmitting }: BookFo
           <FormField
             control={form.control}
             name="publishedYear"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
                 <FormLabel>Publication Year</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save Book"}
+          <Button type="submit" disabled={isSubmitting || isPeopleLoading}>
+            {isSubmitting ? 'Saving...' : 'Save Book'}
           </Button>
         </div>
       </form>

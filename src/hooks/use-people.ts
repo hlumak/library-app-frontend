@@ -6,10 +6,10 @@ import {useQuery} from '@tanstack/react-query';
 
 export function usePeople() {
   return useQuery({
-    queryKey: ["people"],
+    queryKey: ['people'],
     queryFn: async () => {
-      const { data } = await api.get<Person[]>("/people/?totalCount=false");
+      const {data} = await api.get<Person[]>('/people');
       return data;
-    },
+    }
   });
 }

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {zodResolver} from '@hookform/resolvers/zod';
 import {useForm} from 'react-hook-form';
@@ -7,20 +7,28 @@ import {Button} from '@/components/ui/button';
 import {Form, FormControl, FormField, FormItem, FormLabel, FormMessage} from '@/components/ui/form';
 import {Input} from '@/components/ui/input';
 import {MovieFormValues} from '@/types/movies';
+import {usePeople} from '@/hooks/use-people';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 const movieFormSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
+    message: 'Title must be at least 2 characters.'
   }),
   releasedYear: z.coerce.number().int().min(1880).max(new Date().getFullYear(), {
-    message: `Year must be between 1880 and ${new Date().getFullYear()}.`,
+    message: `Year must be between 1880 and ${new Date().getFullYear()}.`
   }),
   producerName: z.string().min(2, {
-    message: "Author name must be at least 2 characters.",
+    message: 'Producer name must be at least 2 characters.'
   }),
   directorName: z.string().min(2, {
-    message: "Author name must be at least 2 characters.",
-  }),
+    message: 'Director name must be at least 2 characters.'
+  })
 });
 
 interface MovieFormProps {
@@ -29,15 +37,17 @@ interface MovieFormProps {
   isSubmitting: boolean;
 }
 
-export function MovieForm({ defaultValues, onSubmitAction, isSubmitting }: MovieFormProps) {
+export function MovieForm({defaultValues, onSubmitAction, isSubmitting}: MovieFormProps) {
+  const {data: people, isLoading: isPeopleLoading} = usePeople();
+
   const form = useForm<MovieFormValues>({
     resolver: zodResolver(movieFormSchema),
     defaultValues: defaultValues || {
-      title: "",
+      title: '',
       releasedYear: new Date().getFullYear(),
-      producerName: "",
-      directorName: ""
-    },
+      producerName: '',
+      directorName: ''
+    }
   });
 
   return (
@@ -47,13 +57,13 @@ export function MovieForm({ defaultValues, onSubmitAction, isSubmitting }: Movie
           <FormField
             control={form.control}
             name="title"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
                 <FormLabel>Title</FormLabel>
                 <FormControl>
                   <Input placeholder="Movie title" {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
@@ -61,13 +71,34 @@ export function MovieForm({ defaultValues, onSubmitAction, isSubmitting }: Movie
           <FormField
             control={form.control}
             name="directorName"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
-                <FormLabel>Author</FormLabel>
+                <FormLabel>Director</FormLabel>
                 <FormControl>
-                  <Input placeholder="Author name" {...field} />
+                  {isPeopleLoading ? (
+                    <div className="h-9 flex items-center px-3 border rounded-md border-input">
+                      <span className="text-muted-foreground">Loading directors...</span>
+                    </div>
+                  ) : (
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a director"/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {people?.map((person) => (
+                          <SelectItem key={person.id} value={person.name}>
+                            {person.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
@@ -75,13 +106,34 @@ export function MovieForm({ defaultValues, onSubmitAction, isSubmitting }: Movie
           <FormField
             control={form.control}
             name="producerName"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
-                <FormLabel>Author</FormLabel>
+                <FormLabel>Producer</FormLabel>
                 <FormControl>
-                  <Input placeholder="Author name" {...field} />
+                  {isPeopleLoading ? (
+                    <div className="h-9 flex items-center px-3 border rounded-md border-input">
+                      <span className="text-muted-foreground">Loading producers...</span>
+                    </div>
+                  ) : (
+                    <Select
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a producer"/>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {people?.map((person) => (
+                          <SelectItem key={person.id} value={person.name}>
+                            {person.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
@@ -89,21 +141,21 @@ export function MovieForm({ defaultValues, onSubmitAction, isSubmitting }: Movie
           <FormField
             control={form.control}
             name="releasedYear"
-            render={({ field }) => (
+            render={({field}) => (
               <FormItem>
                 <FormLabel>Release Year</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
-                <FormMessage />
+                <FormMessage/>
               </FormItem>
             )}
           />
         </div>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Saving..." : "Save Movie"}
+          <Button type="submit" disabled={isSubmitting || isPeopleLoading}>
+            {isSubmitting ? 'Saving...' : 'Save Movie'}
           </Button>
         </div>
       </form>
